@@ -6,6 +6,7 @@ import {
     ,Dimensions
  } from 'react-native';
  const SCREEN_WIDTH = Dimensions.get('window').width;
+ const SWIPE_THRESHOLD =0.25*SCREEN_WIDTH;
 export default  class Deck extends React.Component {
     constructor(props){
         super(props);
@@ -18,12 +19,35 @@ export default  class Deck extends React.Component {
                 position.setValue({x:gesture.dx,y:gesture.dy})
                 console.log('abc');
             },
-            onPanResponderRelease:()=>{
-                this.resetPosition();
+            onPanResponderRelease:(event,gesture)=>{
+                if(gesture.dx>SWIPE_THRESHOLD){
+                    console.log('Swipe right')
+                    this.forceSwipeRight();
+                }
+                else if (gesture.dx<-SWIPE_THRESHOLD){
+                    console.log('Swipe left');
+                    this.forceSwipeLeft();
+                }
+                else{
+                    this.resetPosition();
+                }
+               
             }
         });
         
         this.state={position};
+    }
+    forceSwipeLeft =()=>{
+        Animated.timing(this.state.position,{
+            toValue:{x:-SCREEN_WIDTH,y:0},
+            duration:250
+        }).start();
+    }
+    forceSwipeRight=()=>{
+        Animated.timing(this.state.position,{
+            toValue:{x:SCREEN_WIDTH,y:0},
+            duration:250
+        }).start();
     }
     resetPosition=()=>{
         Animated.spring(this.state.position,{
